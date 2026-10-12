@@ -199,7 +199,7 @@
 //         {
 //             cout<<"LL is Empty \n"<<endl;
 //         }
-        
+
 //     }
 
 //     void print_list()
@@ -226,24 +226,19 @@
 //     return 0;
 // }
 
-
-
-
 // Linked List Implementation From Absolute Scratch : (Again :( )
 
 #include <iostream>
 using namespace std;
 
-class SinglyLinkedList
+class SinglyLinkedList // Singly Linked List Wrapper Implementation
 {
-   public:
-
-    class node
+public:
+    class node // Node Class Wrapper Implementation
     {
-        public:
-
+    public:
         int data;
-        node* next;
+        node *next;
 
         node()
         {
@@ -252,60 +247,149 @@ class SinglyLinkedList
         }
         node(int data)
         {
-            this -> data = data; 
+            this->data = data;
             next = NULL;
         }
     };
 
-    node* head;
+    node *head;
+    node *tail;
+
     SinglyLinkedList()
     {
         head = NULL;
+        tail = NULL;
     }
 
-    void push_front(int value)
+    // This is a Push_Front Function;
+
+    void push_front(int value) // O(1)
     {
-        node * front = new node (value);
-        
-        if(head == NULL)
+        node *front = new node(value);
+
+        if (head == NULL)
         {
             head = front;
+            tail = front;
             return;
         }
         else
-        {    
-        front->next = head;
-        head = front;
+        {
+            front->next = head;
+            head = front;
         }
-
     }
 
-    void push_back(int value);
-    
+    // Push back implemented but with only using the head pointer as a slider(temp)
+
+    // void push_back_test(int value) // O(n)
+    // {
+    //   node* back = new node (value);
+
+    //   if(head == NULL)
+    //   {
+    //     head = back;
+    //     return;
+    //   }
+    //   else
+    //   {
+    //     node* temp = head;
+    //     while (temp -> next != NULL)
+    //     {
+    //         temp = temp -> next;
+    //     }
+    //     temp -> next = back;
+    //   }
+    // }
+
+    // Push back implementation:
+
+    void push_back(int value) // O(1) assuming the tail ptr
+    {
+        node *rear = new node(value);
+
+        if (head == NULL)
+        {
+            head = rear;
+            tail = rear;
+            return;
+        }
+        else
+        {
+            tail->next = rear;
+            tail = rear;
+        }
+    }
+
+    void pop_front()
+    {
+        if(head == NULL)
+        {
+            cout<<"List is Empty"<<endl;
+            return;
+        }
+        else
+        {
+        node* temp = head;
+        head = head -> next;
+        temp -> next = NULL;  
+        delete temp;
+
+        }
+    }
+
+    void pop_back()
+    {
+        if(head == NULL)
+        {
+            cout<<"List is Empty"<<endl;
+            return;
+        }
+        else
+        {
+           node* temp = head;
+           while(temp->next != tail)
+           {
+            temp = temp -> next;
+           }
+           temp -> next = NULL;
+           delete tail;
+           tail = temp;
+           
+           
+        }
+    }
+
     void print_list()
     {
-        node* temp = head;
-        while(temp != NULL)
+        node *temp = head;
+        while (temp != NULL)
         {
-            cout<<temp->data<<" -> ";
-            temp = temp -> next;
-            cout<<"NULL";
+            cout << temp->data << " -> ";
+            temp = temp->next;
         }
+        cout << "NULL ";
     }
-
 };
 
-int main() 
+int main()
 {
-   ios::sync_with_stdio(false);
-   cin.tie(NULL);
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
 
-   SinglyLinkedList L1;
+    SinglyLinkedList L1;
 
-   L1.push_front(10);
-   L1.print_list();
+    L1.push_front(10);
+    L1.push_back(20);
+    L1.push_front(30);
+    L1.push_front(40);
+    L1.push_back(90);
+    L1.push_back(100);
+    L1.print_list();
 
-    
+    L1.pop_front();
+    L1.pop_back();
+
     system("pause");
     return 0;
 }
