@@ -250,10 +250,10 @@ class SinglyLinkedList
             data = 0;
             next = NULL;
         }
-        node(int data, node*next)
+        node(int data)
         {
             this -> data = data; 
-            this -> next = next;
+            next = NULL;
         }
     };
 
@@ -265,14 +265,33 @@ class SinglyLinkedList
 
     void push_front(int value)
     {
-        node * front = new node(value); 
+        node * front = new node (value);
+        
+        if(head == NULL)
+        {
+            head = front;
+            return;
+        }
+        else
+        {    
+        front->next = head;
+        head = front;
+        }
+
     }
 
     void push_back(int value);
+    
+    void print_list()
     {
-        
+        node* temp = head;
+        while(temp != NULL)
+        {
+            cout<<temp->data<<" -> ";
+            temp = temp -> next;
+            cout<<"NULL";
+        }
     }
-
 
 };
 
@@ -283,7 +302,8 @@ int main()
 
    SinglyLinkedList L1;
 
-   push_front(10);
+   L1.push_front(10);
+   L1.print_list();
 
     
     system("pause");
