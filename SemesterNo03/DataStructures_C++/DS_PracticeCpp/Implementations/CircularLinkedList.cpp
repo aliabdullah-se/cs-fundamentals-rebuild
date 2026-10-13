@@ -50,8 +50,9 @@ class SinglyCircularLinkedList
    
    // Push Back Function
 
-   void push_back(string Value){
-    
+   void push_back(string Value)
+   {
+     
    }
 
     
@@ -77,10 +78,25 @@ int main() {
 
    // Test Cases to A Singly circular LinkedList:
    //1. Creation by Push_front:
+   cout<<"Push Front: "<<endl;
+   
    SCL.push_front("Ali");
    SCL.push_front("Ahmed");
    SCL.push_front("Abdullah");
    SCL.print_list();
+   
+   cout<<endl;
+   cout<<"Push Back: "<<endl;
+
+   SCL.push_back("Hiba");
+   SCL.push_back("Tahreem");
+   SCL.push_back("Sana");
+   SCL.print_list();
+
+   cout<<endl;
+   cout<<"Pop front: "<<endl;
+
+
 
     
     system("pause");
