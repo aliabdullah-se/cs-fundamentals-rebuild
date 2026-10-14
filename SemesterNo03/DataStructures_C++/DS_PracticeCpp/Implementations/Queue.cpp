@@ -265,14 +265,16 @@ public:
             cout << temp->data << " , ";
             temp = temp->next;
         }
-        cout << temp->data << "]\n";
+        cout << temp->data << "]\n"; 
     }
 };
 
 int main()
 {
+    Queue q1;
+    
     ios::sync_with_stdio(false);
     cin.tie(NULL);
-
+   
     return 0;
 }
