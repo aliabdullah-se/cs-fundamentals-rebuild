@@ -16,3 +16,15 @@ public:
 
 Iterator begin() { return Iterator(head); } // first node
 Iterator end() { return Iterator(NULL); }   // one PAST the last node
+ 
+ #include <iostream>
+ using namespace std;
+ 
+ int main() {
+     ios::sync_with_stdio(false);
+     cin.tie(NULL);
+ 
+     
+ 
+     return 0;
+ }
