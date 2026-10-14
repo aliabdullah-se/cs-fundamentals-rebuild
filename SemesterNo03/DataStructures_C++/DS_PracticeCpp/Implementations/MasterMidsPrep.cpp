@@ -23,7 +23,7 @@
 // =====================================================================
 #include <iostream>
 using namespace std;
- 
+
 // =====================================================================
 // 1. SINGLY LINKED LIST
 // =====================================================================
@@ -34,7 +34,7 @@ class SinglyLinkedList
     public:
         int data;
         Node *next;
- 
+
         Node()
         {
             data = 0;
@@ -46,20 +46,20 @@ class SinglyLinkedList
             next = NULL;
         }
     };
- 
+
     Node *head;
     Node *tail;
- 
+
 public:
     // Iterator: a small object that behaves like a pointer into the list
     class Iterator
     {
         Node *ptr;
- 
+
     public:
         Iterator(Node *p = NULL) { ptr = p; }
-        int &operator*() { return ptr->data; }                          // *it gives the data
-        Iterator &operator++()                                          // ++it moves to next node
+        int &operator*() { return ptr->data; } // *it gives the data
+        Iterator &operator++()                 // ++it moves to next node
         {
             ptr = ptr->next;
             return *this;
@@ -67,12 +67,12 @@ public:
         bool operator!=(const Iterator &other) const { return ptr != other.ptr; }
         bool operator==(const Iterator &other) const { return ptr == other.ptr; }
     };
- 
-    Iterator begin() { return Iterator(head); }   // first node
-    Iterator end() { return Iterator(NULL); }     // one PAST the last node
- 
+
+    Iterator begin() { return Iterator(head); } // first node
+    Iterator end() { return Iterator(NULL); }   // one PAST the last node
+
     SinglyLinkedList() { head = tail = NULL; }
- 
+
     void push_front(int value) // O(1)
     {
         Node *newNode = new Node(value);
@@ -86,7 +86,7 @@ public:
             head = newNode;       // move after
         }
     }
- 
+
     void push_back(int value) // O(1) because of tail
     {
         Node *newNode = new Node(value);
@@ -100,7 +100,7 @@ public:
             tail = newNode;       // move after
         }
     }
- 
+
     void pop_front() // O(1)
     {
         if (head == NULL)
@@ -115,7 +115,7 @@ public:
             head = head->next;
         delete temp;
     }
- 
+
     void pop_back() // O(n): must reach the node BEFORE tail
     {
         if (head == NULL)
@@ -136,7 +136,7 @@ public:
         tail = temp;
         tail->next = NULL;
     }
- 
+
     // pos is 1-indexed: the new node BECOMES position pos (1 = front)
     void insertAt(int value, int pos) // O(n)
     {
@@ -167,7 +167,7 @@ public:
         newNode->next = temp->next; // link first (new node -> the rest)
         temp->next = newNode;       // then (before -> new node)
     }
- 
+
     void remove(int key) // delete the first node holding key, O(n)
     {
         if (head == NULL)
@@ -197,7 +197,7 @@ public:
             tail = prev; // deleted the last node -> tail moves back
         delete curr;
     }
- 
+
     int search(int key) // returns POSITION (1 = first node), -1 if absent. O(n)
     {
         int pos = 1;
@@ -211,7 +211,7 @@ public:
         }
         return -1;
     }
- 
+
     void reverse() // O(n) time, O(1) space - THE classic
     {
         Node *prev = NULL;
@@ -226,7 +226,7 @@ public:
         }
         head = prev; // prev ends on the old last node
     }
- 
+
     int middle() // slow/fast pointers, O(n). Even length -> second middle
     {
         if (head == NULL)
@@ -240,7 +240,7 @@ public:
         }
         return slow->data;
     }
- 
+
     void print_list()
     {
         Node *temp = head;
@@ -251,14 +251,14 @@ public:
         }
         cout << "NULL" << endl; // printed ONCE, after the loop
     }
- 
+
     ~SinglyLinkedList()
     {
         while (head != NULL)
             pop_front();
     }
 };
- 
+
 // =====================================================================
 // 2. DOUBLY LINKED LIST   (every node has prev AND next)
 // =====================================================================
@@ -270,7 +270,7 @@ class DoublyLinkedList
         int data;
         Node *next;
         Node *prev;
- 
+
         Node()
         {
             data = 0;
@@ -282,13 +282,13 @@ class DoublyLinkedList
             next = prev = NULL;
         }
     };
- 
+
     Node *head;
     Node *tail;
- 
+
 public:
     DoublyLinkedList() { head = tail = NULL; }
- 
+
     void push_front(int value) // O(1)
     {
         Node *newNode = new Node(value);
@@ -303,7 +303,7 @@ public:
             head = newNode;
         }
     }
- 
+
     void push_back(int value) // O(1)
     {
         Node *newNode = new Node(value);
@@ -318,7 +318,7 @@ public:
             tail = newNode;
         }
     }
- 
+
     void pop_front() // O(1)
     {
         if (head == NULL)
@@ -338,7 +338,7 @@ public:
         }
         delete temp;
     }
- 
+
     void pop_back() // O(1) - no traversal, tail->prev already knows the way
     {
         if (head == NULL)
@@ -358,7 +358,7 @@ public:
         }
         delete temp;
     }
- 
+
     void remove(int key) // O(n) to find, O(1) to unlink
     {
         Node *temp = head;
@@ -383,7 +383,7 @@ public:
         temp->next->prev = temp->prev; // node after skips temp
         delete temp;
     }
- 
+
     void print_forward()
     {
         Node *temp = head;
@@ -395,7 +395,7 @@ public:
         }
         cout << "NULL" << endl;
     }
- 
+
     void print_backward()
     {
         Node *temp = tail;
@@ -407,14 +407,14 @@ public:
         }
         cout << "NULL" << endl;
     }
- 
+
     ~DoublyLinkedList()
     {
         while (head != NULL)
             pop_front();
     }
 };
- 
+
 // =====================================================================
 // 3. CIRCULAR LINKED LIST   (invariant: tail->next == head, ALWAYS)
 // =====================================================================
@@ -425,7 +425,7 @@ class CircularLinkedList
     public:
         int data;
         Node *next;
- 
+
         Node()
         {
             data = 0;
@@ -437,13 +437,13 @@ class CircularLinkedList
             next = NULL;
         }
     };
- 
+
     Node *head;
     Node *tail;
- 
+
 public:
     CircularLinkedList() { head = tail = NULL; }
- 
+
     void push_front(int value) // O(1)
     {
         Node *newNode = new Node(value);
@@ -459,7 +459,7 @@ public:
             tail->next = head; // repair the circle
         }
     }
- 
+
     void push_back(int value) // O(1)
     {
         Node *newNode = new Node(value);
@@ -475,7 +475,7 @@ public:
             tail->next = head; // repair the circle
         }
     }
- 
+
     void pop_front() // O(1)
     {
         if (head == NULL)
@@ -495,7 +495,7 @@ public:
         }
         delete temp;
     }
- 
+
     void pop_back() // O(n): need the node BEFORE tail
     {
         if (head == NULL)
@@ -516,7 +516,7 @@ public:
         tail = temp;
         tail->next = head; // repair the circle
     }
- 
+
     void print_list()
     {
         if (head == NULL)
@@ -532,14 +532,14 @@ public:
         } while (temp != head);
         cout << "(back to head)" << endl;
     }
- 
+
     ~CircularLinkedList()
     {
         while (head != NULL)
             pop_front();
     }
 };
- 
+
 // =====================================================================
 // 4a. STACK - ARRAY BASED   (LIFO: last in, first out)
 // =====================================================================
@@ -548,7 +548,7 @@ class ArrayStack
     int *arr;
     int capacity;
     int topIndex; // index of the top element, -1 when empty
- 
+
 public:
     ArrayStack(int capacity = 5)
     {
@@ -556,10 +556,10 @@ public:
         arr = new int[capacity];
         topIndex = -1;
     }
- 
+
     bool isEmpty() const { return topIndex == -1; }
     bool isFull() const { return topIndex == capacity - 1; }
- 
+
     void push(int value) // O(1)
     {
         if (isFull())
@@ -569,7 +569,7 @@ public:
         }
         arr[++topIndex] = value; // move up first, then store
     }
- 
+
     void pop() // O(1)
     {
         if (isEmpty())
@@ -579,7 +579,7 @@ public:
         }
         topIndex--; // the old value is simply ignored from now on
     }
- 
+
     int peek() const // O(1)
     {
         if (isEmpty())
@@ -589,7 +589,7 @@ public:
         }
         return arr[topIndex];
     }
- 
+
     void display() const // top -> bottom
     {
         cout << "Stack (top first): ";
@@ -597,10 +597,10 @@ public:
             cout << arr[i] << " ";
         cout << endl;
     }
- 
+
     ~ArrayStack() { delete[] arr; }
 };
- 
+
 // =====================================================================
 // 4b. STACK - LINKED LIST BASED   (push = push_front, pop = pop_front)
 // =====================================================================
@@ -611,28 +611,28 @@ class LinkedStack
     public:
         int data;
         Node *next;
- 
+
         Node(int data)
         {
             this->data = data;
             next = NULL;
         }
     };
- 
+
     Node *top;
- 
+
 public:
     LinkedStack() { top = NULL; }
- 
+
     bool isEmpty() const { return top == NULL; }
- 
+
     void push(int value) // O(1)
     {
         Node *newNode = new Node(value);
         newNode->next = top; // link first
         top = newNode;       // move after
     }
- 
+
     void pop() // O(1)
     {
         if (isEmpty())
@@ -644,7 +644,7 @@ public:
         top = top->next;
         delete temp;
     }
- 
+
     int peek() const // O(1)
     {
         if (isEmpty())
@@ -654,7 +654,7 @@ public:
         }
         return top->data;
     }
- 
+
     void display() const // top -> bottom
     {
         cout << "Stack (top first): ";
@@ -666,14 +666,14 @@ public:
         }
         cout << endl;
     }
- 
+
     ~LinkedStack()
     {
         while (!isEmpty())
             pop();
     }
 };
- 
+
 // =====================================================================
 // 5a. QUEUE - CIRCULAR ARRAY   (FIFO: first in, first out)
 // =====================================================================
@@ -682,7 +682,7 @@ class ArrayQueue
     int *arr;
     int size, front, rear;
     int count; // number of stored elements: tells full from empty
- 
+
 public:
     ArrayQueue(int size = 5)
     {
@@ -691,10 +691,10 @@ public:
         front = rear = -1;
         count = 0;
     }
- 
+
     bool isEmpty() const { return count == 0; }
     bool isFull() const { return count == size; }
- 
+
     void enqueue(int data) // O(1)
     {
         if (isFull())
@@ -708,7 +708,7 @@ public:
         arr[rear] = data;
         count++;
     }
- 
+
     void dequeue() // O(1)
     {
         if (isEmpty())
@@ -719,7 +719,7 @@ public:
         front = (front + 1) % size;
         count--;
     }
- 
+
     int peek() const // front element
     {
         if (isEmpty())
@@ -729,7 +729,7 @@ public:
         }
         return arr[front];
     }
- 
+
     void display() const
     {
         if (isEmpty())
@@ -746,10 +746,10 @@ public:
         }
         cout << arr[index] << "]" << endl;
     }
- 
+
     ~ArrayQueue() { delete[] arr; }
 };
- 
+
 // =====================================================================
 // 5b. QUEUE - LINKED LIST   (enqueue = push_back, dequeue = pop_front)
 // =====================================================================
@@ -760,22 +760,22 @@ class LinkedQueue
     public:
         int data;
         Node *next;
- 
+
         Node(int data)
         {
             this->data = data;
             next = NULL;
         }
     };
- 
+
     Node *front;
     Node *rear;
- 
+
 public:
     LinkedQueue() { front = rear = NULL; }
- 
+
     bool isEmpty() const { return front == NULL; }
- 
+
     void enqueue(int data) // O(1)
     {
         Node *newNode = new Node(data);
@@ -789,7 +789,7 @@ public:
             rear = newNode;
         }
     }
- 
+
     void dequeue() // O(1)
     {
         if (isEmpty())
@@ -804,7 +804,7 @@ public:
             front = front->next;
         delete temp;
     }
- 
+
     int peek() const
     {
         if (isEmpty())
@@ -814,7 +814,7 @@ public:
         }
         return front->data;
     }
- 
+
     void display() const
     {
         if (isEmpty())
@@ -831,18 +831,18 @@ public:
         }
         cout << temp->data << "]" << endl;
     }
- 
+
     ~LinkedQueue()
     {
         while (!isEmpty())
             dequeue();
     }
 };
- 
+
 // =====================================================================
 // 6. STACK APPLICATIONS  (they reuse ArrayStack above)
 // =====================================================================
- 
+
 // Balanced brackets: push every opener; every closer must match the top.
 bool isBalanced(const char *s)
 {
@@ -868,7 +868,7 @@ bool isBalanced(const char *s)
     }
     return st.isEmpty(); // leftover openers = not balanced
 }
- 
+
 int precedence(char op)
 {
     if (op == '+' || op == '-')
@@ -877,7 +877,7 @@ int precedence(char op)
         return 2;
     return 0; // '(' is lowest, so no operator ever pops it
 }
- 
+
 // Infix -> postfix. Operands go straight out; operators wait on the stack
 // until something of equal or lower priority arrives.
 void infixToPostfix(const char *infix, char *postfix)
@@ -923,7 +923,7 @@ void infixToPostfix(const char *infix, char *postfix)
     }
     postfix[k] = '\0';
 }
- 
+
 // Postfix evaluation (single-digit operands): operand -> push;
 // operator -> pop two, apply, push the result.
 int evaluatePostfix(const char *exp)
@@ -954,7 +954,7 @@ int evaluatePostfix(const char *exp)
     }
     return st.peek();
 }
- 
+
 // =====================================================================
 // TESTS
 // =====================================================================
@@ -968,7 +968,7 @@ int main()
     s.push_back(40);
     s.print_list(); // 30 10 20 40
     s.insertAt(99, 3);
-    s.print_list(); // 30 10 99 20 40
+    s.print_list();    // 30 10 99 20 40
     s.insertAt(77, 6); // after the last node = append
     s.push_back(5);    // proves tail was updated
     s.print_list();    // 30 10 99 20 40 77 5
@@ -983,13 +983,13 @@ int main()
     cout << "search(40) = " << s.search(40) << ", search(5) = " << s.search(5) << endl;
     s.reverse();
     s.push_back(1);
-    s.print_list(); // 8 40 99 10 1
+    s.print_list();                            // 8 40 99 10 1
     cout << "middle = " << s.middle() << endl; // 99
     cout << "iterator: ";
     for (SinglyLinkedList::Iterator it = s.begin(); it != s.end(); ++it)
         cout << *it << " ";
     cout << endl;
- 
+
     cout << "\n===== DOUBLY LINKED LIST =====" << endl;
     DoublyLinkedList d;
     for (int i = 1; i <= 5; i++)
@@ -1002,7 +1002,7 @@ int main()
     d.pop_back();
     d.print_forward();  // 1 2 4
     d.print_backward(); // 4 2 1
- 
+
     cout << "\n===== CIRCULAR LINKED LIST =====" << endl;
     CircularLinkedList c;
     c.push_back(1);
@@ -1016,7 +1016,7 @@ int main()
     c.pop_back();
     c.pop_back();
     c.print_list(); // empty
- 
+
     cout << "\n===== STACKS =====" << endl;
     ArrayStack as(3);
     as.push(1);
@@ -1031,9 +1031,9 @@ int main()
     ls.push(2);
     ls.push(3);
     ls.pop();
-    ls.display(); // 2 1
+    ls.display();                           // 2 1
     cout << "peek = " << ls.peek() << endl; // 2
- 
+
     cout << "\n===== QUEUES =====" << endl;
     ArrayQueue aq(5);
     for (int i = 1; i <= 6; i++) // the 6th overflows
@@ -1047,9 +1047,9 @@ int main()
     for (int i = 1; i <= 4; i++)
         lq.enqueue(i);
     lq.dequeue();
-    lq.display(); // 2 3 4
+    lq.display();                           // 2 3 4
     cout << "peek = " << lq.peek() << endl; // 2
- 
+
     cout << "\n===== STACK APPLICATIONS =====" << endl;
     cout << "{[()]}  balanced? " << isBalanced("{[()]}") << endl; // 1
     cout << "{[(])}  balanced? " << isBalanced("{[(])}") << endl; // 0
@@ -1060,8 +1060,8 @@ int main()
     infixToPostfix("(A+B)*C", post);
     cout << "(A+B)*C   -> " << post << endl; // AB+C*
     infixToPostfix("A*B+C/D", post);
-    cout << "A*B+C/D   -> " << post << endl; // AB*CD/+
+    cout << "A*B+C/D   -> " << post << endl;                        // AB*CD/+
     cout << "23*54*+9- = " << evaluatePostfix("23*54*+9-") << endl; // 17
- 
+
     return 0;
 }
