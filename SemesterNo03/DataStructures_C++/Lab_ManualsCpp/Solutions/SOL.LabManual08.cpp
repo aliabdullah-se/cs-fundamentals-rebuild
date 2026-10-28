@@ -1,623 +1,559 @@
-// File: 25L-3022.cpp
-// Data Structures Lab 08 - Tasks 2, 3, 4 and 5
-// Tasks 0 and 1 are paper-based and are not included here.
-
 #include <iostream>
-#include <stack>
 #include <queue>
+#include <string>
 using namespace std;
 
+template <typename T>
 struct Node {
-    int data;
-    Node* left;
-    Node* right;
+    T data;
+    int height;
+    Node<T>* left;
+    Node<T>* right;
 
-    Node(int value) {
-        data = value;
-        left = NULL;
-        right = NULL;
-    }
+    Node(T value) : data(value), height(0), left(nullptr), right(nullptr) {}
 };
 
-class BST {
+template <typename T>
+class AVL {
 private:
-    Node* root;
+    Node<T>* root;
 
-    void clearTree(Node* node) {
-        if (node == NULL) {
-            return;
+    int height(Node<T>* node) const {
+        return node == nullptr ? -1 : node->height;
+    }
+
+    void updateHeight(Node<T>* node) {
+        if (node != nullptr) {
+            int leftHeight = height(node->left);
+            int rightHeight = height(node->right);
+            node->height = 1 + (leftHeight > rightHeight ? leftHeight : rightHeight);
+        }
+    }
+
+    int getBalanceFactor(Node<T>* node) const {
+        if (node == nullptr) {
+            return 0;
+        }
+        return height(node->left) - height(node->right);
+    }
+
+    Node<T>* rotateRight(Node<T>* node) {
+        Node<T>* newRoot = node->left;
+        Node<T>* movedSubtree = newRoot->right;
+
+        newRoot->right = node;
+        node->left = movedSubtree;
+
+        updateHeight(node);
+        updateHeight(newRoot);
+        return newRoot;
+    }
+
+    Node<T>* rotateLeft(Node<T>* node) {
+        Node<T>* newRoot = node->right;
+        Node<T>* movedSubtree = newRoot->left;
+
+        newRoot->left = node;
+        node->right = movedSubtree;
+
+        updateHeight(node);
+        updateHeight(newRoot);
+        return newRoot;
+    }
+
+    Node<T>* rebalance(Node<T>* node) {
+        if (node == nullptr) {
+            return node;
         }
 
-        clearTree(node->left);
-        clearTree(node->right);
+        updateHeight(node);
+        int balance = getBalanceFactor(node);
+
+        if (balance > 1) {
+            if (getBalanceFactor(node->left) < 0) {
+                cout << "Rotation: LR at " << node->data << endl;
+                node->left = rotateLeft(node->left);
+                return rotateRight(node);
+            }
+            cout << "Rotation: LL at " << node->data << endl;
+            return rotateRight(node);
+        }
+
+        if (balance < -1) {
+            if (getBalanceFactor(node->right) > 0) {
+                cout << "Rotation: RL at " << node->data << endl;
+                node->right = rotateRight(node->right);
+                return rotateLeft(node);
+            }
+            cout << "Rotation: RR at " << node->data << endl;
+            return rotateLeft(node);
+        }
+
+        return node;
+    }
+
+    Node<T>* insert(Node<T>* node, T data) {
+        if (node == nullptr) {
+            return new Node<T>(data);
+        }
+
+        if (data < node->data) {
+            node->left = insert(node->left, data);
+        } else if (node->data < data) {
+            node->right = insert(node->right, data);
+        } else {
+            return node;
+        }
+
+        return rebalance(node);
+    }
+
+    Node<T>* findMinNode(Node<T>* node) const {
+        if (node == nullptr) {
+            return nullptr;
+        }
+        while (node->left != nullptr) {
+            node = node->left;
+        }
+        return node;
+    }
+
+    Node<T>* findMaxNode(Node<T>* node) const {
+        if (node == nullptr) {
+            return nullptr;
+        }
+        while (node->right != nullptr) {
+            node = node->right;
+        }
+        return node;
+    }
+
+    Node<T>* remove(Node<T>* node, T data) {
+        if (node == nullptr) {
+            return nullptr;
+        }
+
+        if (data < node->data) {
+            node->left = remove(node->left, data);
+        } else if (node->data < data) {
+            node->right = remove(node->right, data);
+        } else {
+            if (node->left == nullptr || node->right == nullptr) {
+                Node<T>* child = node->left != nullptr ? node->left : node->right;
+                delete node;
+                return child;
+            }
+
+            Node<T>* successor = findMinNode(node->right);
+            node->data = successor->data;
+            node->right = remove(node->right, successor->data);
+        }
+
+        return rebalance(node);
+    }
+
+    void inorder(Node<T>* node) const {
+        if (node == nullptr) return;
+        inorder(node->left);
+        cout << node->data << " ";
+        inorder(node->right);
+    }
+
+    void preorder(Node<T>* node) const {
+        if (node == nullptr) return;
+        cout << node->data << " ";
+        preorder(node->left);
+        preorder(node->right);
+    }
+
+    void postorder(Node<T>* node) const {
+        if (node == nullptr) return;
+        postorder(node->left);
+        postorder(node->right);
+        cout << node->data << " ";
+    }
+
+    void printSideways(Node<T>* node, int depth) const {
+        if (node == nullptr) return;
+        printSideways(node->right, depth + 1);
+
+        for (int i = 0; i < depth * 4; i++) {
+            cout << " ";
+        }
+
+        int balance = getBalanceFactor(node);
+        cout << node->data << " [h" << node->height << " bf";
+        if (balance > 0) cout << "+";
+        cout << balance << "]" << endl;
+
+        printSideways(node->left, depth + 1);
+    }
+
+    bool checkBalanced(Node<T>* node) const {
+        if (node == nullptr) return true;
+
+        int balance = getBalanceFactor(node);
+        if (balance < -1 || balance > 1) return false;
+
+        return checkBalanced(node->left) && checkBalanced(node->right);
+    }
+
+    void clear(Node<T>* node) {
+        if (node == nullptr) return;
+        clear(node->left);
+        clear(node->right);
         delete node;
     }
 
+    int countNodes(Node<T>* node) const {
+        if (node == nullptr) return 0;
+        return 1 + countNodes(node->left) + countNodes(node->right);
+    }
+
+    void listInRange(Node<T>* node, T low, T high) const {
+        if (node == nullptr) return;
+
+        if (low < node->data) listInRange(node->left, low, high);
+        if (!(node->data < low) && !(high < node->data)) cout << node->data << " ";
+        if (node->data < high) listInRange(node->right, low, high);
+    }
+
 public:
-    BST() {
-        root = NULL;
+    AVL() : root(nullptr) {}
+
+    ~AVL() {
+        clear(root);
     }
 
-    ~BST() {
-        clearTree(root);
+    void insert(T data) {
+        root = insert(root, data);
     }
 
-    Node* getRoot() {
-        return root;
+    void remove(T data) {
+        root = remove(root, data);
     }
 
-    // Task 2: Insert
-    void insert(int value) {
-        Node* newNode = new Node(value);
-
-        if (root == NULL) {
-            root = newNode;
-            return;
-        }
-
-        Node* current = root;
-        Node* parent = NULL;
-
-        while (current != NULL) {
-            parent = current;
-
-            if (value < current->data) {
+    Node<T>* search(T data) const {
+        Node<T>* current = root;
+        while (current != nullptr) {
+            if (data < current->data) {
                 current = current->left;
-            }
-            else if (value > current->data) {
+            } else if (current->data < data) {
                 current = current->right;
-            }
-            else {
-                delete newNode;
-                return; // Ignore duplicate values
-            }
-        }
-
-        if (value < parent->data) {
-            parent->left = newNode;
-        }
-        else {
-            parent->right = newNode;
-        }
-    }
-
-    // Task 2: Search
-    bool search(int value) {
-        Node* current = root;
-
-        while (current != NULL) {
-            if (value == current->data) {
-                return true;
-            }
-            else if (value < current->data) {
-                current = current->left;
-            }
-            else {
-                current = current->right;
-            }
-        }
-
-        return false;
-    }
-
-    // Task 2: Remove a value
-    void removeValue(int value) {
-        Node* current = root;
-        Node* parent = NULL;
-
-        while (current != NULL && current->data != value) {
-            parent = current;
-
-            if (value < current->data) {
-                current = current->left;
-            }
-            else {
-                current = current->right;
-            }
-        }
-
-        if (current == NULL) {
-            cout << value << " was not found." << endl;
-            return;
-        }
-
-        // If the node has two children, copy its inorder successor.
-        if (current->left != NULL && current->right != NULL) {
-            Node* successorParent = current;
-            Node* successor = current->right;
-
-            while (successor->left != NULL) {
-                successorParent = successor;
-                successor = successor->left;
-            }
-
-            current->data = successor->data;
-            current = successor;
-            parent = successorParent;
-        }
-
-        // The node now has zero or one child.
-        Node* child = NULL;
-
-        if (current->left != NULL) {
-            child = current->left;
-        }
-        else {
-            child = current->right;
-        }
-
-        if (parent == NULL) {
-            root = child;
-        }
-        else if (parent->left == current) {
-            parent->left = child;
-        }
-        else {
-            parent->right = child;
-        }
-
-        delete current;
-    }
-
-    // Task 2: Minimum
-    int findMin() {
-        if (root == NULL) {
-            return -1;
-        }
-
-        Node* current = root;
-
-        while (current->left != NULL) {
-            current = current->left;
-        }
-
-        return current->data;
-    }
-
-    // Task 2: Maximum
-    int findMax() {
-        if (root == NULL) {
-            return -1;
-        }
-
-        Node* current = root;
-
-        while (current->right != NULL) {
-            current = current->right;
-        }
-
-        return current->data;
-    }
-
-    // Task 2: Inorder traversal
-    void inorder() {
-        stack<Node*> nodes;
-        Node* current = root;
-
-        while (current != NULL || !nodes.empty()) {
-            while (current != NULL) {
-                nodes.push(current);
-                current = current->left;
-            }
-
-            current = nodes.top();
-            nodes.pop();
-
-            cout << current->data << " ";
-            current = current->right;
-        }
-
-        cout << endl;
-    }
-
-    // Task 2: Preorder traversal
-    void preorder() {
-        if (root == NULL) {
-            cout << "Tree is empty." << endl;
-            return;
-        }
-
-        stack<Node*> nodes;
-        nodes.push(root);
-
-        while (!nodes.empty()) {
-            Node* current = nodes.top();
-            nodes.pop();
-
-            cout << current->data << " ";
-
-            if (current->right != NULL) {
-                nodes.push(current->right);
-            }
-
-            if (current->left != NULL) {
-                nodes.push(current->left);
-            }
-        }
-
-        cout << endl;
-    }
-
-    // Task 2: Postorder traversal using two stacks
-    void postorder() {
-        if (root == NULL) {
-            cout << "Tree is empty." << endl;
-            return;
-        }
-
-        stack<Node*> first;
-        stack<Node*> second;
-
-        first.push(root);
-
-        while (!first.empty()) {
-            Node* current = first.top();
-            first.pop();
-
-            second.push(current);
-
-            if (current->left != NULL) {
-                first.push(current->left);
-            }
-
-            if (current->right != NULL) {
-                first.push(current->right);
-            }
-        }
-
-        while (!second.empty()) {
-            cout << second.top()->data << " ";
-            second.pop();
-        }
-
-        cout << endl;
-    }
-
-    // Task 2: Level-order traversal
-    void levelOrder() {
-        if (root == NULL) {
-            cout << "Tree is empty." << endl;
-            return;
-        }
-
-        queue<Node*> nodes;
-        nodes.push(root);
-
-        while (!nodes.empty()) {
-            Node* current = nodes.front();
-            nodes.pop();
-
-            cout << current->data << " ";
-
-            if (current->left != NULL) {
-                nodes.push(current->left);
-            }
-
-            if (current->right != NULL) {
-                nodes.push(current->right);
-            }
-        }
-
-        cout << endl;
-    }
-
-    // Task 3: Return the kth smallest value.
-    // Returns -1 if k is invalid or the tree has fewer than k nodes.
-    int kthSmallest(int k) {
-        if (k <= 0) {
-            return -1;
-        }
-
-        stack<Node*> nodes;
-        Node* current = root;
-        int count = 0;
-
-        while (current != NULL || !nodes.empty()) {
-            while (current != NULL) {
-                nodes.push(current);
-                current = current->left;
-            }
-
-            current = nodes.top();
-            nodes.pop();
-            count++;
-
-            if (count == k) {
-                return current->data;
-            }
-
-            current = current->right;
-        }
-
-        return -1;
-    }
-
-    // Task 4: Validate the BST ordering rule.
-    // Every node must be greater than its lower bound and
-    // smaller than its upper bound.
-    bool validateFrom(Node* node, long long lower, long long upper) {
-        if (node == NULL) {
-            return true;
-        }
-
-        if (node->data <= lower || node->data >= upper) {
-            return false;
-        }
-
-        bool leftValid = validateFrom(node->left, lower, node->data);
-        bool rightValid = validateFrom(node->right, node->data, upper);
-
-        if (leftValid == false || rightValid == false) {
-            return false;
-        }
-
-        return true;
-    }
-
-    bool isValidBST(Node* node) {
-        return validateFrom(node, -2147483649LL, 2147483648LL);
-    }
-
-    // Task 5: Check whether a value exists in a given tree.
-    bool contains(Node* node, int value) {
-        Node* current = node;
-
-        while (current != NULL) {
-            if (current->data == value) {
-                return true;
-            }
-            else if (value < current->data) {
-                current = current->left;
-            }
-            else {
-                current = current->right;
-            }
-        }
-
-        return false;
-    }
-
-    // Task 5: Lowest common ancestor.
-    // Returns NULL if either key is missing.
-    Node* lowestCommonAncestor(int a, int b) {
-        if (contains(root, a) == false || contains(root, b) == false) {
-            return NULL;
-        }
-
-        Node* current = root;
-
-        while (current != NULL) {
-            if (a < current->data && b < current->data) {
-                current = current->left;
-            }
-            else if (a > current->data && b > current->data) {
-                current = current->right;
-            }
-            else {
+            } else {
                 return current;
             }
         }
-
-        return NULL;
+        return nullptr;
     }
 
-    // Task 2 demonstration
-    void runTask2() {
-        cout << endl << "--- Task 2: BST Operations and Traversals ---" << endl;
-
-        insert(45);
-        insert(25);
-        insert(65);
-        insert(15);
-        insert(35);
-        insert(55);
-        insert(75);
-        insert(30);
-
-        cout << "Inorder: ";
-        inorder();
-
-        cout << "Preorder: ";
-        preorder();
-
-        cout << "Postorder: ";
-        postorder();
-
-        cout << "Level order: ";
-        levelOrder();
-
-        if (search(35)) {
-            cout << "Search 35: Found" << endl;
+    T findMin() const {
+        Node<T>* node = findMinNode(root);
+        if (node == nullptr) {
+            cout << "Tree is empty." << endl;
+            return T();
         }
-        else {
-            cout << "Search 35: Not found" << endl;
-        }
-
-        if (search(90)) {
-            cout << "Search 90: Found" << endl;
-        }
-        else {
-            cout << "Search 90: Not found" << endl;
-        }
-
-        cout << "Minimum: " << findMin() << endl;
-        cout << "Maximum: " << findMax() << endl;
-
-        cout << "Deleting 15..." << endl;
-        removeValue(15);
-        cout << "Inorder after deleting 15: ";
-        inorder();
-
-        cout << "Deleting 35..." << endl;
-        removeValue(35);
-        cout << "Inorder after deleting 35: ";
-        inorder();
-
-        cout << "Deleting 45..." << endl;
-        removeValue(45);
-        cout << "Inorder after deleting 45: ";
-        inorder();
+        return node->data;
     }
 
-    // Task 3 demonstration
-    void runTask3() {
-        cout << endl << "--- Task 3: Kth Smallest Element ---" << endl;
-
-        insert(45);
-        insert(25);
-        insert(65);
-        insert(15);
-        insert(35);
-        insert(55);
-        insert(75);
-        insert(30);
-
-        int k;
-        cout << "Enter k: ";
-        cin >> k;
-
-        int answer = kthSmallest(k);
-
-        if (answer == -1) {
-            cout << "Invalid k: no such element." << endl;
+    T findMax() const {
+        Node<T>* node = findMaxNode(root);
+        if (node == nullptr) {
+            cout << "Tree is empty." << endl;
+            return T();
         }
-        else {
-            cout << k << "th smallest element: " << answer << endl;
-        }
+        return node->data;
     }
 
-    // Task 5 demonstration
-    void runTask5() {
-        cout << endl << "--- Task 5: Lowest Common Ancestor ---" << endl;
+    void inorder() const {
+        inorder(root);
+        cout << endl;
+    }
 
-        insert(45);
-        insert(25);
-        insert(65);
-        insert(15);
-        insert(35);
-        insert(55);
-        insert(75);
-        insert(30);
+    void preorder() const {
+        preorder(root);
+        cout << endl;
+    }
 
-        int a, b;
-        cout << "Enter the first key: ";
-        cin >> a;
-        cout << "Enter the second key: ";
-        cin >> b;
+    void postorder() const {
+        postorder(root);
+        cout << endl;
+    }
 
-        Node* answer = lowestCommonAncestor(a, b);
-
-        if (answer == NULL) {
-            cout << "LCA cannot be found because at least one key is missing."
-                 << endl;
+    void levelOrder() const {
+        if (root == nullptr) {
+            cout << "Tree is empty." << endl;
+            return;
         }
-        else {
-            cout << "Lowest common ancestor: " << answer->data << endl;
+
+        queue<Node<T>*> nodes;
+        nodes.push(root);
+
+        while (!nodes.empty()) {
+            Node<T>* current = nodes.front();
+            nodes.pop();
+            cout << current->data << " ";
+
+            if (current->left != nullptr) nodes.push(current->left);
+            if (current->right != nullptr) nodes.push(current->right);
         }
+        cout << endl;
+    }
+
+    void printTree() const {
+        if (root == nullptr) {
+            cout << "Tree is empty." << endl;
+            return;
+        }
+        printSideways(root, 0);
+    }
+
+    bool isBalanced() const {
+        return checkBalanced(root);
+    }
+
+    void clear() {
+        clear(root);
+        root = nullptr;
+    }
+
+    int size() const {
+        return countNodes(root);
+    }
+
+    int treeHeight() const {
+        return height(root);
+    }
+
+    void listInRange(T low, T high) const {
+        if (high < low) {
+            cout << "Invalid range." << endl;
+            return;
+        }
+        listInRange(root, low, high);
+        cout << endl;
+    }
+
+    void showStrongestAndWeakestWarriors() const {
+        Node<T>* strongest = nullptr;
+        Node<T>* weakest = nullptr;
+        findWarriorExtremes(root, strongest, weakest);
+        if (strongest == nullptr) {
+            cout << "Tree is empty." << endl;
+            return;
+        }
+        cout << "Strongest: " << strongest->data << endl;
+        cout << "Weakest: " << weakest->data << endl;
+    }
+
+private:
+    void findWarriorExtremes(Node<T>* node, Node<T>*& strongest, Node<T>*& weakest) const {
+        if (node == nullptr) return;
+        if (strongest == nullptr || node->data.chiPower > strongest->data.chiPower) strongest = node;
+        if (weakest == nullptr || node->data.chiPower < weakest->data.chiPower) weakest = node;
+        findWarriorExtremes(node->left, strongest, weakest);
+        findWarriorExtremes(node->right, strongest, weakest);
     }
 };
 
-// Task 4 demonstration uses three small trees.
-void runTask4() {
-    cout << endl << "--- Task 4: Validate a BST ---" << endl;
+class Warrior {
+public:
+    int id;
+    string name;
+    int chiPower;
 
-    BST checker;
+    Warrior(int warriorID = 0, string warriorName = "", int power = 0)
+        : id(warriorID), name(warriorName), chiPower(power) {}
 
-    // Valid tree
-    Node* valid = new Node(40);
-    valid->left = new Node(20);
-    valid->right = new Node(60);
-
-    // Invalid: 55 is in the left subtree of 40.
-    Node* invalidOne = new Node(40);
-    invalidOne->left = new Node(20);
-    invalidOne->left->right = new Node(55);
-
-    // Invalid: 35 is in the right subtree of 40.
-    Node* invalidTwo = new Node(40);
-    invalidTwo->right = new Node(60);
-    invalidTwo->right->left = new Node(35);
-
-    if (checker.isValidBST(valid)) {
-        cout << "Tree 1: Valid BST" << endl;
-    }
-    else {
-        cout << "Tree 1: Invalid BST" << endl;
+    bool operator<(const Warrior& other) const {
+        return id < other.id;
     }
 
-    if (checker.isValidBST(invalidOne)) {
-        cout << "Tree 2: Valid BST" << endl;
-    }
-    else {
-        cout << "Tree 2: Invalid BST" << endl;
+    bool operator>(const Warrior& other) const {
+        return id > other.id;
     }
 
-    if (checker.isValidBST(invalidTwo)) {
-        cout << "Tree 3: Valid BST" << endl;
+    bool operator==(const Warrior& other) const {
+        return id == other.id;
     }
-    else {
-        cout << "Tree 3: Invalid BST" << endl;
+};
+
+ostream& operator<<(ostream& output, const Warrior& warrior) {
+    output << "ID: " << warrior.id << ", Name: " << warrior.name
+           << ", Chi Power: " << warrior.chiPower;
+    return output;
+}
+
+void findStrongestAndWeakest(Node<Warrior>* node, Warrior*& strongest, Warrior*& weakest) {
+    if (node == nullptr) return;
+
+    if (strongest == nullptr || node->data.chiPower > strongest->chiPower) {
+        strongest = &(node->data);
+    }
+    if (weakest == nullptr || node->data.chiPower < weakest->chiPower) {
+        weakest = &(node->data);
     }
 
-    // Release the manually created trees.
-    // This helper is local to the demonstration.
-    // Delete nodes in child-first order.
-    delete valid->left;
-    delete valid->right;
-    delete valid;
+    findStrongestAndWeakest(node->left, strongest, weakest);
+    findStrongestAndWeakest(node->right, strongest, weakest);
+}
 
-    delete invalidOne->left->right;
-    delete invalidOne->left;
-    delete invalidOne;
-
-    delete invalidTwo->right->left;
-    delete invalidTwo->right;
-    delete invalidTwo;
+template <typename T>
+void printTreeStats(const AVL<T>& tree) {
+    cout << "Number of nodes: " << tree.size() << endl;
+    cout << "Tree height: " << tree.treeHeight() << endl;
+    cout << "Balanced: " << (tree.isBalanced() ? "Yes" : "No") << endl;
 }
 
 int main() {
+    AVL<int> tree;
     int choice;
+    int value;
+
+    cout << "AVL Tree Tasks 2 and 3" << endl;
 
     do {
         cout << endl;
-        cout << "========== DATA STRUCTURES LAB 08 ==========" << endl;
-        cout << "Tasks 0 and 1 are paper-based." << endl;
-        cout << "Choose a question to run:" << endl;
-        cout << "2. BST operations and traversals" << endl;
-        cout << "3. Kth smallest element" << endl;
-        cout << "4. Validate a BST" << endl;
-        cout << "5. Lowest common ancestor" << endl;
+        cout << "1. Insert integer" << endl;
+        cout << "2. Remove integer" << endl;
+        cout << "3. Search integer" << endl;
+        cout << "4. Find minimum" << endl;
+        cout << "5. Find maximum" << endl;
+        cout << "6. Inorder traversal" << endl;
+        cout << "7. Preorder traversal" << endl;
+        cout << "8. Postorder traversal" << endl;
+        cout << "9. Level-order traversal" << endl;
+        cout << "10. Print tree" << endl;
+        cout << "11. Check balance" << endl;
+        cout << "12. Clear tree" << endl;
+        cout << "13. List keys in range" << endl;
+        cout << "14. Run example: 50, 40, 30, 60, 70, 55" << endl;
+        cout << "15. Open Kung Fu Warrior menu (Task 4)" << endl;
         cout << "0. Exit" << endl;
-        cout << "Enter your choice: ";
+        cout << "Enter choice: ";
+        cin >> choice;
 
-        if (!(cin >> choice)) {
-            cout << "Invalid input. Exiting." << endl;
-            break;
-        }
+        if (choice == 1) {
+            cout << "Enter value: ";
+            cin >> value;
+            tree.insert(value);
+        } else if (choice == 2) {
+            cout << "Enter value to remove: ";
+            cin >> value;
+            tree.remove(value);
+        } else if (choice == 3) {
+            cout << "Enter value to search: ";
+            cin >> value;
+            Node<int>* found = tree.search(value);
+            if (found != nullptr) cout << "Found: " << found->data << endl;
+            else cout << "Value not found." << endl;
+        } else if (choice == 4) {
+            if (tree.size() > 0) cout << "Minimum: " << tree.findMin() << endl;
+            else cout << "Tree is empty." << endl;
+        } else if (choice == 5) {
+            if (tree.size() > 0) cout << "Maximum: " << tree.findMax() << endl;
+            else cout << "Tree is empty." << endl;
+        } else if (choice == 6) {
+            tree.inorder();
+        } else if (choice == 7) {
+            tree.preorder();
+        } else if (choice == 8) {
+            tree.postorder();
+        } else if (choice == 9) {
+            tree.levelOrder();
+        } else if (choice == 10) {
+            tree.printTree();
+        } else if (choice == 11) {
+            cout << "Balanced: " << (tree.isBalanced() ? "Yes" : "No") << endl;
+        } else if (choice == 12) {
+            tree.clear();
+            cout << "Tree cleared." << endl;
+        } else if (choice == 13) {
+            int low, high;
+            cout << "Enter lower and upper bounds: ";
+            cin >> low >> high;
+            tree.listInRange(low, high);
+        } else if (choice == 14) {
+            tree.clear();
+            int values[] = {50, 40, 30, 60, 70, 55};
+            for (int i = 0; i < 6; i++) tree.insert(values[i]);
+            cout << "Inorder: ";
+            tree.inorder();
+            cout << "Preorder: ";
+            tree.preorder();
+            cout << "Tree:" << endl;
+            tree.printTree();
+        } else if (choice == 15) {
+            AVL<Warrior> warriors;
+            int warriorChoice;
+            do {
+                cout << endl;
+                cout << "Kung Fu Balance Tree" << endl;
+                cout << "1. Add warrior" << endl;
+                cout << "2. Remove warrior by ID" << endl;
+                cout << "3. Find warrior by ID" << endl;
+                cout << "4. List warriors in ID order" << endl;
+                cout << "5. Strongest and weakest warrior" << endl;
+                cout << "6. Show tree stats" << endl;
+                cout << "7. Print warrior tree" << endl;
+                cout << "8. List warriors in ID range" << endl;
+                cout << "0. Return to main menu" << endl;
+                cout << "Enter choice: ";
+                cin >> warriorChoice;
 
-        if (choice == 2) {
-            BST tree;
-            tree.runTask2();
+                if (warriorChoice == 1) {
+                    int id, power;
+                    string name;
+                    cout << "Enter warrior ID: ";
+                    cin >> id;
+                    if (warriors.search(Warrior(id, "", 0)) != nullptr) {
+                        cout << "A warrior with this ID already exists." << endl;
+                    } else {
+                        cout << "Enter warrior name (one word): ";
+                        cin >> name;
+                        cout << "Enter chi power: ";
+                        cin >> power;
+                        warriors.insert(Warrior(id, name, power));
+                    }
+                } else if (warriorChoice == 2) {
+                    int id;
+                    cout << "Enter ID to remove: ";
+                    cin >> id;
+                    if (warriors.search(Warrior(id, "", 0)) != nullptr) {
+                        warriors.remove(Warrior(id, "", 0));
+                        cout << "Warrior removed." << endl;
+                    } else {
+                        cout << "Warrior not found." << endl;
+                    }
+                } else if (warriorChoice == 3) {
+                    int id;
+                    cout << "Enter ID to find: ";
+                    cin >> id;
+                    Node<Warrior>* found = warriors.search(Warrior(id, "", 0));
+                    if (found != nullptr) cout << found->data << endl;
+                    else cout << "Warrior not found." << endl;
+                } else if (warriorChoice == 4) {
+                    warriors.inorder();
+                } else if (warriorChoice == 5) {
+                    warriors.showStrongestAndWeakestWarriors();
+                } else if (warriorChoice == 6) {
+                    printTreeStats(warriors);
+                } else if (warriorChoice == 7) {
+                    warriors.printTree();
+                } else if (warriorChoice == 8) {
+                    int low, high;
+                    cout << "Enter minimum and maximum ID: ";
+                    cin >> low >> high;
+                    warriors.listInRange(Warrior(low, "", 0), Warrior(high, "", 0));
+                } else if (warriorChoice != 0) {
+                    cout << "Invalid choice." << endl;
+                }
+            } while (warriorChoice != 0);
+        } else if (choice != 0) {
+            cout << "Invalid choice." << endl;
         }
-        else if (choice == 3) {
-            BST tree;
-            tree.runTask3();
-        }
-        else if (choice == 4) {
-            runTask4();
-        }
-        else if (choice == 5) {
-            BST tree;
-            tree.runTask5();
-        }
-        else if (choice == 0) {
-            cout << "Program ended." << endl;
-        }
-        else {
-            cout << "Invalid choice. Select 2, 3, 4, 5 or 0." << endl;
-        }
-
     } while (choice != 0);
 
+    cout << "Program ended." << endl;
     return 0;
 }
