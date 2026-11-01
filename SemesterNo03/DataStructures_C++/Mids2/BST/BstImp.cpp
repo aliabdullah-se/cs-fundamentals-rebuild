@@ -29,7 +29,7 @@ class BST
     node *root;   
     node *add (node* temp, int data)
     {
-        if(temp != NULL)
+        if(temp == NULL)
         {
             return new node(data);
         }
