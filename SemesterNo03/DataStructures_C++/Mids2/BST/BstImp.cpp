@@ -26,13 +26,49 @@ class BST
     };
 
     // BST ROOT node:
+    node *root;   
+    node *add (node* temp, int data)
+    {
+        if(temp != NULL)
+        {
+            return new node(data);
+        }
+        else if(temp->data < data)
+        {
+            temp->right = add (temp->right,data);
+        }
+        else if(temp->data > data)
+        {
+            temp->left = add (temp->left,data);
+        }
+        else
+        {
+            cout<<"Duplicate Branch... Error!!"<<endl;
+        }
+        return temp;
+    }
 
-    node *root;
-    public:
+     // 2-inOrder Traversal:
+    void inOrder(node *temp)
+    {
+        if (temp == NULL)
+            return;
+        inOrder(temp->left);
+        cout << temp->data<<" , ";
+        inOrder(temp->right);
+    }
+
+public:
     BST()
     {
         root = NULL;
-    }   
+    }
+    //Add Method:
+    void add(int data)
+    {
+        root = add(root, data);
+    }
+
     // Traversals:
 
     // 1-preOrder Traversal:
@@ -41,33 +77,29 @@ class BST
         if (temp == NULL)
             return;
         cout << temp->data;
-        inOrder(temp->left);
-        inOrder(temp->right);
+        preOrder(temp->left);
+        preOrder(temp->right);
     }
-    // 2-inOrder Traversal:
-    void inOrder(node *temp)
-    {
-        if (temp == NULL)
-            return;
-        inOrder(temp->left);
-        cout << temp->data;
-        inOrder(temp->right);
-    }
+   
     // 3-PostOrder Traversal:
     void postOrder(node *temp)
     {
         if (temp == NULL)
             return;
-        inOrder(temp->left);
-        inOrder(temp->right);
+        postOrder(temp->left);
+        postOrder(temp->right);
         cout << temp->data;
     }
 
     void printBST()
     {
-        if(root == NULL)
+        if (root == NULL)
         {
-            cerr<<"Tree is Empty.. Working on an empty branch"<<endl;
+            cerr << "Tree is Empty.. Working on an empty branch" << endl;
+        }
+        else
+        {
+          inOrder(root);
         }
     }
 };
@@ -75,11 +107,16 @@ class BST
 int main()
 {
     BST tree;
-
+    tree.add(10);
+    tree.add(30);
+    tree.add(50);
+    tree.add(70);
+    tree.add(90);
     tree.printBST();
-    
+
     ios::sync_with_stdio(false);
     cin.tie(NULL);
 
+    system("pause");
     return 0;
 }
