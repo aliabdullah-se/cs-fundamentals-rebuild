@@ -111,3 +111,31 @@
 // }
 
 
+#include <iostream>
+using namespace std;
+
+class Stack{
+    class node
+    {
+          int data;
+          node* next;
+          public:
+          
+    node(int data)
+    {
+     this->data=data;
+     next = NULL;     
+    }
+    };
+   node* head;
+   node* tail; 
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    
+
+    return 0;
+}
