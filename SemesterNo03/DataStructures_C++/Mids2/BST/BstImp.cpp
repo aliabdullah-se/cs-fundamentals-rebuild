@@ -5,12 +5,11 @@ class BST
 {
     class node
     {
-    private:
+        public:
         int data;
         node *left;
         node *right;
 
-    public:
         node(int data)
         {
             this->data = data;
@@ -19,6 +18,36 @@ class BST
         }
     };
     node *root;
+    // Traversals:
+    //1-inOrder Traversal:
+
+    void inOrder(node* temp)
+    {
+        if(temp == NULL)
+        return;
+        inOrder(temp -> left);
+        cout << temp->data;
+        inOrder(temp -> right);
+    }
+    //2-PreOrder Traversal:
+    void inOrder(node* temp)
+    {
+        if(temp == NULL)
+        return;
+        inOrder(temp -> left);
+        cout << temp->data;
+        inOrder(temp -> right);
+    }
+    //PostOrder Traversal:
+    void inOrder(node* temp)
+    {
+        if(temp == NULL)
+        return;
+        inOrder(temp -> left);
+        cout << temp->data;
+        inOrder(temp -> right);
+    }
+
 };
 
 int main()
