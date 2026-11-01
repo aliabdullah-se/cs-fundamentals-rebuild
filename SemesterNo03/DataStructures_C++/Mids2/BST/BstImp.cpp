@@ -10,6 +10,12 @@ class BST
         node *left;
         node *right;
 
+        node()
+        {
+            data = 0;
+            left = right = NULL;
+        }
+
         node(int data)
         {
             this->data = data;
