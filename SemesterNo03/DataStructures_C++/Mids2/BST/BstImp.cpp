@@ -19,8 +19,17 @@ class BST
     };
     node *root;
     // Traversals:
-    //1-inOrder Traversal:
 
+    //1-preOrder Traversal:
+    void preOrder(node* temp)
+    {
+        if(temp == NULL)
+        return;
+        cout << temp->data;
+        inOrder(temp -> left);
+        inOrder(temp -> right);
+    }
+    //2-inOrder Traversal:
     void inOrder(node* temp)
     {
         if(temp == NULL)
@@ -29,23 +38,14 @@ class BST
         cout << temp->data;
         inOrder(temp -> right);
     }
-    //2-PreOrder Traversal:
-    void inOrder(node* temp)
+    //3-PostOrder Traversal:
+    void postOrder(node* temp)
     {
         if(temp == NULL)
         return;
         inOrder(temp -> left);
-        cout << temp->data;
         inOrder(temp -> right);
-    }
-    //PostOrder Traversal:
-    void inOrder(node* temp)
-    {
-        if(temp == NULL)
-        return;
-        inOrder(temp -> left);
         cout << temp->data;
-        inOrder(temp -> right);
     }
 
 };
