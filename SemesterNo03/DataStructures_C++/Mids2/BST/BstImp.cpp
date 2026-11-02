@@ -26,35 +26,85 @@ class BST
     };
 
     // BST ROOT node:
-    node *root;   
-    node *add (node* temp, int data)
+    node *root;
+    node *minNode(node *min)
     {
-        if(temp == NULL)
+        while (min && min->left)
+        {
+            min = min->left;
+        }
+        return min;
+    }
+
+    node *add(node *temp, int data)
+    {
+        if (temp == NULL)
         {
             return new node(data);
         }
-        else if(temp->data < data)
+        else if (temp->data < data)
         {
-            temp->right = add (temp->right,data);
+            temp->right = add(temp->right, data);
         }
-        else if(temp->data > data)
+        else if (temp->data > data)
         {
-            temp->left = add (temp->left,data);
+            temp->left = add(temp->left, data);
         }
         else
         {
-            cout<<"Duplicate Branch... Error!!"<<endl;
+            cout << "Duplicate Branch... Error!!" << endl;
         }
         return temp;
     }
 
-     // 2-inOrder Traversal:
+    // delete
+    node *remove(node *temp, int data)
+    {
+        if (temp == NULL)
+        {
+            return new node(data);
+        }
+        else if (temp->data < data)
+        {
+            temp->right = add(temp->right, data);
+        }
+        else if (temp->data > data)
+        {
+            temp->left = add(temp->left, data);
+        }
+        else
+        {
+            if (temp->left == NULL || temp->right == NULL)
+            {
+                node *dummy;
+                if (temp->left != NULL)
+                {
+                    dummy = temp->left;
+                }
+                else
+                {
+                    dummy = temp->right;
+                }
+                delete temp;
+                return dummy;
+            }
+            else
+            {
+                node *succ = minNode(temp->right);
+                temp->data = succ->data;
+                temp->right = remove(temp->right, data);
+            }
+        }
+        return temp;
+    }
+
+    // 2-inOrder Traversal:
     void inOrder(node *temp)
     {
         if (temp == NULL)
             return;
         inOrder(temp->left);
-        cout << temp->data<<" , ";
+        cout << temp->data << " , ";
         inOrder(temp->right);
     }
 
@@ -63,10 +113,15 @@ public:
     {
         root = NULL;
     }
-    //Add Method:
+    // Add Method:
     void add(int data)
     {
         root = add(root, data);
+    }
+    // remove
+    void remove(int data)
+    {
+        root = remove(root, data);
     }
 
     // Traversals:
@@ -80,7 +135,7 @@ public:
         preOrder(temp->left);
         preOrder(temp->right);
     }
-   
+
     // 3-PostOrder Traversal:
     void postOrder(node *temp)
     {
@@ -99,7 +154,7 @@ public:
         }
         else
         {
-          inOrder(root);
+            inOrder(root);
         }
     }
 };
@@ -112,6 +167,7 @@ int main()
     tree.add(50);
     tree.add(70);
     tree.add(90);
+    tree.remove(90);
     tree.printBST();
 
     ios::sync_with_stdio(false);
