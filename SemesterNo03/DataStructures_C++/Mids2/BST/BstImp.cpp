@@ -97,6 +97,26 @@ class BST
         }
         return temp;
     }
+    // search
+    bool search(node *temp, int key)
+    {
+        if (temp == NULL)
+        {
+            return false;
+        }
+        else if (temp->data == key)
+        {
+            return true;
+        }
+        else if (key > temp->data)
+        {
+            return search(temp->right, key);
+        }
+        else
+        {
+            return search(temp->left, key);
+        }
+    }
 
     // 2-inOrder Traversal:
     void inOrder(node *temp)
@@ -122,6 +142,24 @@ public:
     void remove(int data)
     {
         root = remove(root, data);
+    }
+    // search method
+    bool search(int key)
+    {
+        return search(root, key);
+    }
+
+    void update(int oldData, int newData)
+    {
+        if (search(oldData))
+        {
+            remove(oldData);
+            add(newData);
+        }
+        else
+        {
+            cout << "Data Not Found" << endl;
+        }
     }
 
     // Traversals:
